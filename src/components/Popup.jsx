@@ -2,12 +2,13 @@ import styled from "styled-components";
 
 const PopupContent = styled.div`
   position: relative;
-  height: 17rem;
+  height: 17.03rem;
+  // border: 0.2rem solid #3e3e3e;
   width: 50rem;
   left: ${(props) => (props.visiblecontent ? "1.15rem" : "-20vw")};
   opacity: ${(props) => (props.visiblecontent ? "1" : "0")};
   border-radius: 0.8rem;
-  margin-top: -18.15rem;
+  margin-top: -18.2rem;
   background: #242424;
   transition: all 0.8s ease;
 `;

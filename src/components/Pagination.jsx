@@ -37,7 +37,7 @@ export function Paginationn({ SelectPage, setSelectPage, PaginationLength }) {
         onClick={() => {
           setSelectPage(SelectPage - 1);
           if (SelectPage <= 1) {
-            setSelectPage(42);
+            setSelectPage(PaginationLength);
           }
         }}
       >
@@ -47,7 +47,7 @@ export function Paginationn({ SelectPage, setSelectPage, PaginationLength }) {
       <Button
         onClick={() => {
           setSelectPage(SelectPage + 1);
-          if (SelectPage >= 42) {
+          if (SelectPage >= PaginationLength) {
             setSelectPage(1);
           }
         }}

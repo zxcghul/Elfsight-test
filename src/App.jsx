@@ -56,43 +56,58 @@ const Search = styled.input`
 function App() {
   const [InfoCards, setInfoCards] = useState([]);
   const [Loading, setLoading] = useState(false);
-  const [PaginationArray, setPaginationArray] = useState([]);
-  const [SelectPage, setSelectPage] = useState(1);
   const [InputName, setInputName] = useState("");
 
+  const [SelectPage, setSelectPage] = useState(1);
+  const [AllPage, setAllPage] = useState();
+  const [CardPerPage, setCardPerPage] = useState(20);
+
   const [SelectAlf, SetSelectAlf] = useState();
-  const [SelectAlive, setSelectAlive] = useState();
+  const [SelectAlive, setSelectAlive] = useState("");
   const [SelectGender, SetSelectGender] = useState("");
   const [SelectSpecies, SetSelectSpecies] = useState("");
   const [Reset, setReset] = useState();
 
-  function countPagination(Count) {
-    const arr = [];
-    for (let index = 0; index < Count; index++) {
-      arr.push(index + 1);
-    }
-    return arr;
-  }
-  async function FetchInfo(url) {
+  async function FetchInfo() {
+    let cardsFull = [];
     setLoading(true);
-    const result = await FetchCards(url);
-    setPaginationArray(countPagination(result.info.pages));
-    setInfoCards(result.results);
-    console.log(result.results);
+    const result = await FetchCards(
+      "https://rickandmortyapi.com/api/character"
+    );
+    for (let index = 0; index < result.info.pages; index++) {
+      const res = await FetchCards(
+        `https://rickandmortyapi.com/api/character?page=${index + 1}`
+      );
+      cardsFull = [...cardsFull, ...res.results];
+    }
+    setInfoCards(cardsFull);
     setLoading(false);
   }
 
   useEffect(() => {
-    FetchInfo(`https://rickandmortyapi.com/api/character?page=${SelectPage}`);
-  }, [SelectPage]);
+    FetchInfo();
+  }, []);
 
   let filteredData = [...InfoCards];
   const sortedCards = useMemo(() => {
     if (SelectAlf) {
-      filteredData.sort((a, b) => a.name.localeCompare(b.name));
+      filteredData.sort((a, b) => {
+        const isDigitA = /^\d/.test(a.name);
+        const isDigitB = /^\d/.test(b.name);
+        if (isDigitA === isDigitB) {
+          return a.name.localeCompare(b.name);
+        }
+        isDigitA ? 1 : -1;
+      });
     }
-    if (SelectAlive) {
+    if (SelectAlive === "Alive") {
       filteredData = filteredData.filter((item) => item.status == "Alive");
+    }
+    if (SelectAlive === "Dead") {
+      filteredData = filteredData.filter((item) => item.status == "Dead");
+    }
+    if (SelectAlive === "unknown") {
+      filteredData = filteredData.filter((item) => item.status == "unknown");
     }
     if (SelectGender === "Male") {
       filteredData = filteredData.filter((item) => item.gender == "Male");
@@ -125,14 +140,21 @@ function App() {
     if (Reset) {
       filteredData = [...InfoCards];
     }
+
     return filteredData;
   }, [InfoCards, SelectAlf, SelectAlive, SelectGender, SelectSpecies, Reset]);
 
   const SortedAdnSearchedCards = useMemo(() => {
+    setSelectPage(1);
     return sortedCards.filter((item) =>
       item.name.toLowerCase().includes(InputName.toLowerCase())
     );
   }, [InputName, sortedCards]);
+
+  const showPagination = Math.ceil(SortedAdnSearchedCards.length / CardPerPage);
+  const lastIndex = SelectPage * CardPerPage;
+  const firstIndex = lastIndex - CardPerPage;
+  const showPages = SortedAdnSearchedCards.slice(firstIndex, lastIndex);
 
   return (
     <div>
@@ -149,19 +171,20 @@ function App() {
         onChangeAlive={setSelectAlive}
         onChangeGender={SetSelectGender}
         onChangeSpecies={SetSelectSpecies}
+        onChageSearch={setInputName}
         reset={setReset}
       />
       {Loading ? (
         <Loader />
       ) : SortedAdnSearchedCards.length ? (
-        <Cards res={SortedAdnSearchedCards} />
+        <Cards res={showPages} />
       ) : (
         <Empty>Таких персонажей нет</Empty>
       )}
       <Paginationn
         SelectPage={SelectPage}
         setSelectPage={setSelectPage}
-        PaginationLength={PaginationArray.length}
+        PaginationLength={showPagination}
       />
     </div>
   );

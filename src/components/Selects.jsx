@@ -48,6 +48,7 @@ export function Selects({
   onChangeAlive,
   onChangeGender,
   onChangeSpecies,
+  onChageSearch,
   reset,
 }) {
   const [toggleForAlf, setToggleForAlf] = useState(false);
@@ -58,8 +59,9 @@ export function Selects({
   function resetSelects() {
     reset(true);
     onChangeAlf(false);
-    onChangeAlive(false);
+    onChangeAlive("");
     onChangeGender("");
+    onChageSearch("");
     setToggleForGender(false);
     setToggleForAlive(false);
     setToggleForAlf(false);
@@ -69,6 +71,7 @@ export function Selects({
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
       <Select
+
         onChange={(event) => {
           reset(false);
           setToggleForGender(true);
@@ -76,7 +79,11 @@ export function Selects({
         }}
         style={{ border: toggleForGender && ".2rem solid #FFFFFF" }}
       >
-        <option value="Default" style={{ display: "none" }}>
+        <option
+          selected={!toggleForGender && "selected"}
+          value="selected"
+          style={{ display: "none" }}
+        >
           Выберите пол
         </option>
         <option value="Male">Мужчина</option>
@@ -90,8 +97,11 @@ export function Selects({
         }}
         style={{ border: toggleForSpecies && ".2rem solid #FFFFFF" }}
       >
-        <option value="Default" style={{ display: "none" }}>
-          Выберите пол
+        <option
+          selected={!toggleForSpecies && "selected"}
+          style={{ display: "none" }}
+        >
+          Раса
         </option>
         <option value="Human">Человек</option>
         <option value="Humanoid">Гумоноид</option>
@@ -99,6 +109,24 @@ export function Selects({
         <option value="Animal">Животное</option>
         <option value="Mythological Creature">Мифологическая сущность</option>
         <option value="Poopybutthole">Дыркавзаднице</option>
+      </Select>
+      <Select
+        onChange={(event) => {
+          reset(false);
+          setToggleForAlive(true);
+          onChangeAlive(event.target.value);
+        }}
+        style={{ border: toggleForAlive && ".2rem solid #FFFFFF" }}
+      >
+        <option
+          selected={!toggleForAlive && "selected"}
+          style={{ display: "none" }}
+        >
+          Статус
+        </option>
+        <option value="Alive">Жив</option>
+        <option value="Dead">Мертв</option>
+        <option value="unknown">Неизвестно</option>
       </Select>
       <Choice
         value={"Alf"}
@@ -110,17 +138,6 @@ export function Selects({
         style={{ border: toggleForAlf && ".2rem solid #FFFFFF" }}
       >
         По алфавиту
-      </Choice>
-      <Choice
-        value={"Alive"}
-        onClick={(e) => {
-          reset(false);
-          onChangeAlive(!toggleForAlive);
-          setToggleForAlive(!toggleForAlive);
-        }}
-        style={{ border: toggleForAlive && ".2rem solid #FFFFFF" }}
-      >
-        Жив
       </Choice>
       <Reset
         value={"Reset"}
